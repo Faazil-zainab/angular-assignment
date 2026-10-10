@@ -43,3 +43,7 @@ desktop.ini
 .cache/
 tmp/
 temp/
+
+# --- Screenshot harness scratch space (see docs/screenshots/capture.mjs) ----
+docs/screenshots/.chrome-profile/
+docs/screenshots/.capture/

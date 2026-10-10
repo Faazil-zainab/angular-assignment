@@ -12,11 +12,12 @@ enforced on the backend, and data is persisted to **local JSON files only** — 
 >
 > Verified in this repository (see [Verification results](#verification-results)):
 > **backend typecheck + build pass**, **frontend typecheck + production build pass**,
-> **backend tests 103/103 pass**, **frontend tests 45/45 pass**, and a **live end-to-end run of 55/55
-> API checks** against the compiled server.
+> **backend tests 103/103 pass**, **frontend tests 49/49 pass**, and a **live end-to-end run of 55/55
+> API checks** against the compiled server, plus **30/30 measured interface checks** (responsive,
+> accessibility and contrast) against the running SPA in headless Chrome.
 
 - [Assessment checklist](ASSESSMENT_CHECKLIST.md) — every NSQTech requirement mapped to evidence.
-- [Screenshot placeholders](docs/screenshots/README.md) — capture instructions (no automation tooling installed).
+- [Screenshots](docs/screenshots/README.md) — genuine captures plus the capture/verification harness.
 
 ---
 
@@ -177,7 +178,7 @@ Using `GET /api/health` from the app shell as the worked example:
 angular-assignment/
 ├── package.json                 workspace scripts (dev, build, test, typecheck)
 ├── ASSESSMENT_CHECKLIST.md      requirement-by-requirement verification
-├── docs/screenshots/            screenshot placeholders + capture instructions
+├── docs/screenshots/            genuine screenshots + the CDP capture/verification harness
 ├── backend/
 │   ├── .env.example             every supported setting (safe placeholders)
 │   ├── .env.test                committed test fixture (no real secrets)
@@ -610,10 +611,11 @@ Verified on Windows, Node **v24.15.0** / npm 12, against the current source.
 | Backend tests                                             | `npm --prefix backend test`    | **103 / 103 pass** (25 suites, 0 fail) |
 | Backend production build (`tsc` → `dist/`)                | `npm --prefix backend run build` | **pass** |
 | Frontend typecheck (app + spec configs)                   | `npm --prefix frontend run typecheck` | **pass** |
-| Frontend tests (Karma, ChromeHeadless)                    | `npm --prefix frontend run test:ci` | **45 / 45 pass** |
+| Frontend tests (Karma, ChromeHeadless)                    | `npm --prefix frontend run test:ci` | **49 / 49 pass** |
 | Frontend production build (`ng build`)                    | `npm --prefix frontend run build` | **pass**, no warnings |
 | Live end-to-end API run (compiled server, real HTTP)      | custom harness (see below)      | **55 / 55 checks pass** |
 | Restart durability (live: create → restart → read → delete) | custom probe                  | **PASS** |
+| Interface checks in headless Chrome (responsive, a11y, contrast) | `node docs/screenshots/capture.mjs` | **30 / 30 checks pass** |
 
 The live run exercised, against `node dist/server.js`:
 
@@ -665,21 +667,34 @@ The live run exercised, against `node dist/server.js`:
 
 ## Screenshots
 
-Browser-automation tooling (Puppeteer/Playwright) is **not installed** in this repository, so the
-screenshots below are **placeholders, not real captures**. See
-[`docs/screenshots/README.md`](docs/screenshots/README.md) for exact capture instructions.
+These are **genuine captures of the running application**, not mock-ups. They were produced by
+driving the locally installed Chrome in headless mode over the DevTools Protocol — no automation
+dependency was added to the project.
 
-| Screen                     | File                                              | Status      |
+| Screen                     | File                                              | Captured at |
 | -------------------------- | ------------------------------------------------- | ----------- |
-| Login                      | `docs/screenshots/01-login.png`                   | Placeholder |
-| General user dashboard     | `docs/screenshots/02-dashboard-general-user.png`  | Placeholder |
-| Admin dashboard            | `docs/screenshots/03-dashboard-admin.png`         | Placeholder |
-| User management            | `docs/screenshots/04-user-management.png`         | Placeholder |
-| API loading state          | `docs/screenshots/05-loading-state.png`           | Placeholder |
+| Login                      | `docs/screenshots/01-login.png`                   | 1440 × 1000 |
+| General user dashboard     | `docs/screenshots/02-dashboard-general-user.png`  | 1440 × 1635 |
+| Admin dashboard            | `docs/screenshots/03-dashboard-admin.png`         | 1440 × 1947 |
+| User management            | `docs/screenshots/04-admin-user-management.png`   | 1440 × 1000 |
+| API loading state          | `docs/screenshots/05-api-loading-state.png`       | 1440 × 1000 |
+| Tablet layout              | `docs/screenshots/06-dashboard-tablet.png`        | 768 × 1024  |
+| Mobile layout              | `docs/screenshots/07-dashboard-mobile.png`        | 390 × 844   |
 
-Quick capture: run both apps (`npm run dev`), open <http://localhost:4200>, sign in, and use the
-browser's built-in screenshot tool. To capture the loading state, select the dashboard's **3 seconds**
-API-delay option and screenshot while the skeletons are visible.
+The same run also **measures** the interface, because a screenshot can only suggest whether a layout
+is right. It currently reports **30/30 checks passing**: responsive navigation mode and no horizontal
+overflow at all three widths, KPI reflow (5 → 3 → 1 columns), accessible names on every control,
+`Tab` order and `:focus-visible` matching on login/dashboard/user management, semantic structure
+(landmarks, headings, `th[scope]`, live regions), a visible focus indicator (proved by pixel-diffing
+each control focused versus unfocused), and WCAG AA contrast across **456 sampled text elements**.
+
+Regenerate everything with:
+
+```bash
+node docs/screenshots/capture.mjs     # API on :3000 and the dev-config SPA build required
+```
+
+See [`docs/screenshots/README.md`](docs/screenshots/README.md) for prerequisites and method notes.
 
 ## Security considerations
 
@@ -731,7 +746,8 @@ API-delay option and screenshot while the skeletons are visible.
 - No refresh tokens, token revocation list or rate limiting.
 - The dashboard loads up to the API's maximum page size (100) rather than paging the records table.
 - Records are read-only through the UI; there is no create/edit-record screen.
-- Screenshots are placeholders (no browser-automation tooling installed).
+- The screenshot harness needs a running API and Chrome; it is not part of `npm test`, so it is a
+  manual/CI-optional step rather than a guaranteed gate.
 
 **Future improvements**
 

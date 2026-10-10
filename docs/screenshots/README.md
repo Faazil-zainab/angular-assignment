@@ -1,44 +1,64 @@
-# Screenshots — capture instructions
+# Screenshots
 
-> ⚠️ **These are placeholders, not real screenshots.**
->
-> Browser-automation tooling (Puppeteer / Playwright) is **not installed** in this repository, so the
-> PNG files referenced from the root README do not exist yet. Nothing here is a fabricated capture.
+These are **genuine captures of the running application** — produced by driving the locally installed
+Chrome in headless mode over the DevTools Protocol. Nothing here is a mock-up, a template or a
+redrawn design.
 
-## Why they are not committed
+## The files
 
-The images below can be produced in a minute from the running application, but generating (or
-committing) binary screenshots from an agent session would either require adding a heavy automation
-dependency (against the "no unnecessary dependencies" rule) or risk presenting a mock-up as a real
-capture. The honest choice is to document exactly how to capture them.
+| File | Screen | How it is reached | Size |
+| ---- | ------ | ----------------- | ---- |
+| `01-login.png` | Sign-in page (brand panel + sign-in card) | `/auth/login` | 1440 × 1000 |
+| `02-dashboard-general-user.png` | Dashboard as a General User — only their own 10 records | sign in as `user001` / `User@123` | 1440 × 1635 |
+| `03-dashboard-admin.png` | Dashboard as an Admin — all 16 records, plus admin-only panels | sign in as `admin001` / `Admin@123` | 1440 × 1947 |
+| `04-admin-user-management.png` | Admin user management (filters, table, actions) | `/admin/users` as admin | 1440 × 1000 |
+| `05-api-loading-state.png` | API loading state — skeleton rows while the records request is in flight | dashboard, response held open | 1440 × 1000 |
+| `06-dashboard-tablet.png` | Responsive layout at tablet width, sidebar collapsed to a drawer | dashboard at 768 × 1024 | 768 × 1024 |
+| `07-dashboard-mobile.png` | Responsive layout at mobile width | dashboard at 390 × 844 | 390 × 844 |
 
-## How to capture
+## How to regenerate them
 
-1. Start both applications from the repository root:
+`capture.mjs` in this directory does the work. It adds **no dependencies**: it uses Node's built-in
+`fetch` and `WebSocket`, a ~40-line static file server, and the Chrome already on the machine.
 
-   ```bash
-   npm install
-   npm run dev          # API on :3000, SPA on :4200
-   ```
+```bash
+# 1. API (from backend/, so the JSON store resolves to backend/data)
+npm --prefix backend run build
+cd backend && node dist/server.js          # :3000
 
-2. Open <http://localhost:4200> in a Chromium-based browser at a desktop width (e.g. 1440 × 900).
+# 2. SPA built with the development configuration (apiBaseUrl -> http://localhost:3000)
+npm --prefix frontend run build -- --configuration development
 
-3. Use the browser's built-in screenshot tool (DevTools → **Capture screenshot**, or
-   `Ctrl/Cmd + Shift + P` → *Capture full size screenshot*).
+# 3. Capture (from the repository root)
+node docs/screenshots/capture.mjs
+```
 
-| # | Screen                     | How to reach it                                                        | Suggested file                         |
-| - | -------------------------- | ---------------------------------------------------------------------- | -------------------------------------- |
-| 1 | Login                      | Open `/auth/login` (the app lands here when signed out)                 | `01-login.png`                         |
-| 2 | General user dashboard     | Sign in as `user001` / `User@123` → **General User**                    | `02-dashboard-general-user.png`        |
-| 3 | Admin dashboard            | Sign in as `admin001` / `Admin@123` → **Admin**                         | `03-dashboard-admin.png`               |
-| 4 | User management            | As admin, open **Administration → Users** (`/admin/users`)              | `04-user-management.png`               |
-| 5 | API loading state          | On the dashboard select the **3 seconds** API-delay option, then capture while the skeleton rows are visible | `05-loading-state.png` |
+Chrome is looked up in its default install location; add a path to `CHROME_CANDIDATES` if yours
+differs. The script signs in through the real `POST /api/auth/login` endpoint, so the API must be
+running and seeded.
 
-4. Drop the files into this directory using the suggested names, then update the status column of the
-   **Screenshots** table in the [root README](../../README.md#screenshots) from *Placeholder* to *Captured*.
+## It also verifies the interface
 
-## Mobile / tablet captures (optional)
+Because a screenshot can only suggest whether a layout is correct, the same run measures the things
+that matter and prints a pass/fail line for each. Every check currently passes:
 
-Resize the browser (or use device emulation) to ~390 px and ~768 px wide to demonstrate the
-responsive layout: the sidebar collapses to an overlay drawer, the KPI grid reflows and the records
-table scrolls horizontally.
+- **Responsive layout** — the sidebar is docked at 1440 px and becomes an overlay drawer at 768 px and
+  390 px; the page never scrolls sideways; the KPI grid reflows 5 → 3 → 1 columns.
+- **Accessibility** — every form control has an accessible name, every button has a label, `Tab`
+  reaches interactive elements in order, keyboard focus matches `:focus-visible`, and focus is
+  *visibly* indicated (proved by diffing rendered pixels of each control while unfocused versus
+  focused, with animations, transitions and the caret neutralised).
+- **Contrast** — every rendered text element is compared against its nearest opaque background, and
+  must meet WCAG AA (4.5:1, or 3:1 for large text). ~200 elements are sampled per page.
+
+The checks exit non-zero on failure, so this doubles as a smoke test for the built application.
+
+## Method notes and limitations
+
+- Screenshots are full-page (the viewport is expanded to the document height) except the responsive
+  and loading-state shots, which are viewport-sized.
+- `prefers-reduced-motion: reduce` is emulated, so entrance animations are not caught mid-flight.
+- The contrast audit resolves solid backgrounds only; it cannot judge text over gradients or images,
+  and it does not evaluate disabled-state colours.
+- Focus-indicator detection is pixel-based, so it proves *that* something changed on focus, not that
+  the indicator has a specific size or meets a contrast ratio on its own.
