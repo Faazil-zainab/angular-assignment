@@ -1,0 +1,234 @@
+<section class="auth">
+  <!-- Brand / visual panel -->
+  <aside class="auth__visual">
+    <div class="auth__visual-inner">
+      <a class="auth__brand" href="/" tabindex="-1">
+        <span class="auth__mark" aria-hidden="true">
+          <mat-icon>verified_user</mat-icon>
+        </span>
+        <span class="auth__brand-text">
+          <strong>{{ info.appName }}</strong>
+          <small>Digital background verification</small>
+        </span>
+      </a>
+
+      <div class="auth__pitch">
+        <span class="auth__eyebrow">Enterprise verification platform</span>
+        <h1>Trusted background checks, from request to decision.</h1>
+        <p class="auth__description">
+          MPloyChek gives verification teams one console to raise checks, track their progress and
+          surface risk with a clear, auditable trail. Sign in to manage records for your organisation.
+        </p>
+
+        <ul class="auth__features">
+          <li>
+            <mat-icon aria-hidden="true">bolt</mat-icon>
+            <span><strong>Real-time status</strong> on every verification request.</span>
+          </li>
+          <li>
+            <mat-icon aria-hidden="true">shield</mat-icon>
+            <span><strong>Risk indicators</strong> prioritise what needs attention.</span>
+          </li>
+          <li>
+            <mat-icon aria-hidden="true">admin_panel_settings</mat-icon>
+            <span><strong>Role-based access</strong> for administrators and users.</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Original, code-drawn illustration (no external assets). -->
+      <figure class="auth__illustration">
+        <svg viewBox="0 0 420 260" role="img" aria-label="A verification record being reviewed and approved">
+          <defs>
+            <linearGradient id="mc-doc" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ffffff" />
+              <stop offset="1" stop-color="#f5f6ff" />
+            </linearGradient>
+          </defs>
+
+          <rect x="24" y="30" width="290" height="200" rx="18" fill="url(#mc-doc)" stroke="#dfe3f5" />
+          <rect x="48" y="58" width="120" height="12" rx="6" fill="#c7cbe8" />
+          <rect x="48" y="84" width="220" height="9" rx="4.5" fill="#e4e7f4" />
+          <rect x="48" y="104" width="188" height="9" rx="4.5" fill="#e4e7f4" />
+          <rect x="48" y="124" width="204" height="9" rx="4.5" fill="#e4e7f4" />
+
+          <rect x="48" y="152" width="92" height="30" rx="15" fill="#e8f6ef" />
+          <circle cx="66" cy="167" r="5" fill="#12a06a" />
+          <rect x="78" y="162" width="48" height="10" rx="5" fill="#bfe6d4" />
+
+          <rect x="152" y="152" width="82" height="30" rx="15" fill="#eef0fb" />
+          <circle cx="170" cy="167" r="5" fill="#4f46e5" />
+          <rect x="182" y="162" width="40" height="10" rx="5" fill="#ccd0f2" />
+
+          <!-- Connection lines -->
+          <path d="M312 132 L344 132" stroke="#d6dae9" stroke-width="2" stroke-dasharray="5 6" />
+
+          <!-- Approval shield -->
+          <circle cx="356" cy="132" r="46" fill="#eef0fb" />
+          <path
+            d="M356 96 l26 10 v22 c0 20-14 32-26 38 -12-6-26-18-26-38 v-22 z"
+            fill="#4f46e5"
+          />
+          <path
+            d="M344 132 l9 9 18-19"
+            fill="none"
+            stroke="#ffffff"
+            stroke-width="5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+
+          <!-- Floating status pills -->
+          <g>
+            <rect x="250" y="18" width="150" height="40" rx="12" fill="#ffffff" stroke="#e2e5f2" />
+            <circle cx="272" cy="38" r="9" fill="#e8f6ef" />
+            <path d="M267 38 l4 4 7-8" fill="none" stroke="#12a06a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+            <rect x="290" y="27" width="72" height="8" rx="4" fill="#dfe3f0" />
+            <rect x="290" y="42" width="48" height="7" rx="3.5" fill="#eceef7" />
+          </g>
+        </svg>
+      </figure>
+    </div>
+  </aside>
+
+  <!-- Sign-in card -->
+  <main class="auth__panel">
+    <mat-card appearance="outlined" class="login-card">
+      <header class="login-card__head">
+        <h2>Sign in</h2>
+        <p>Use the credentials issued by your platform administrator.</p>
+      </header>
+
+      @if (errorMessage(); as message) {
+        <div class="login-card__error" role="alert">
+          <mat-icon aria-hidden="true">error_outline</mat-icon>
+          <span>{{ message }}</span>
+        </div>
+      }
+
+      <form class="login-card__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <mat-form-field appearance="outline">
+          <mat-label>User ID</mat-label>
+          <mat-icon matPrefix aria-hidden="true">badge</mat-icon>
+          <input
+            matInput
+            formControlName="userId"
+            autocomplete="username"
+            placeholder="e.g. user001"
+            aria-describedby="login-user-id-hint"
+          />
+          <mat-hint id="login-user-id-hint">Issued by the platform administrator.</mat-hint>
+          @if (form.controls.userId.touched && form.controls.userId.invalid) {
+            <mat-error>
+              @if (form.controls.userId.hasError('required')) {
+                User ID is required.
+              } @else if (form.controls.userId.hasError('pattern')) {
+                Use letters, digits, dot, underscore or hyphen only.
+              } @else {
+                User ID must be 3 to 32 characters.
+              }
+            </mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <mat-icon matPrefix aria-hidden="true">lock</mat-icon>
+          <input
+            matInput
+            formControlName="password"
+            [type]="passwordHidden() ? 'password' : 'text'"
+            autocomplete="current-password"
+            aria-describedby="login-password-toggle"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            id="login-password-toggle"
+            class="login-card__toggle"
+            (click)="togglePassword()"
+            [attr.aria-label]="passwordHidden() ? 'Show password' : 'Hide password'"
+            [attr.aria-pressed]="!passwordHidden()"
+          >
+            <mat-icon aria-hidden="true">{{ passwordHidden() ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+          @if (form.controls.password.touched && form.controls.password.invalid) {
+            <mat-error>
+              @if (form.controls.password.hasError('required')) {
+                Password is required.
+              } @else {
+                Password must be 6 to 128 characters.
+              }
+            </mat-error>
+          }
+        </mat-form-field>
+
+        <fieldset class="role-field">
+          <legend>Sign in as</legend>
+          <mat-radio-group formControlName="role" class="role-group" aria-label="Select the role to sign in as">
+            @for (option of roleOptions; track option.value) {
+              <mat-radio-button [value]="option.value" class="role-card">
+                <span class="role-card__icon" aria-hidden="true">
+                  <mat-icon>{{ option.icon }}</mat-icon>
+                </span>
+                <span class="role-card__text">
+                  <strong>{{ option.label }}</strong>
+                  <small>{{ option.description }}</small>
+                </span>
+              </mat-radio-button>
+            }
+          </mat-radio-group>
+        </fieldset>
+
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          class="login-card__submit"
+          [disabled]="submitting()"
+        >
+          @if (submitting()) {
+            <ng-container>
+              <mat-spinner [diameter]="18" class="login-card__spinner" />
+              <span>Signing in…</span>
+            </ng-container>
+          } @else {
+            <ng-container>
+              <mat-icon aria-hidden="true">login</mat-icon>
+              <span>Sign in</span>
+            </ng-container>
+          }
+        </button>
+      </form>
+
+      @if (!info.isProduction) {
+        <div class="login-card__demo">
+          <p class="login-card__demo-title">
+            <mat-icon aria-hidden="true">science</mat-icon>
+            Development accounts
+          </p>
+          <div class="login-card__demo-list">
+            @for (account of demoAccounts; track account.userId) {
+              <button
+                type="button"
+                mat-stroked-button
+                class="login-card__demo-item"
+                (click)="useDemoAccount(account)"
+              >
+                <span class="login-card__demo-id">{{ account.userId }}</span>
+                <span class="login-card__demo-role">{{ account.role }}</span>
+              </button>
+            }
+          </div>
+          <p class="login-card__demo-note">Select one to fill the form, then press Sign in.</p>
+        </div>
+      }
+    </mat-card>
+
+    <p class="auth__support">
+      <mat-icon aria-hidden="true">lock</mat-icon>
+      Sessions are tied to your browser tab and expire with the access token.
+    </p>
+  </main>
+</section>

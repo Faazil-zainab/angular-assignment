@@ -1,0 +1,38 @@
+{
+  "name": "mploychek-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MPloyChek - Digital Background Verification | User Management REST API",
+  "license": "UNLICENSED",
+  "main": "dist/server.js",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+    "seed": "tsx src/scripts/seed.ts",
+    "test": "node --env-file=.env.test --import tsx --test --test-concurrency=1 \"tests/**/*.test.ts\"",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.7.0",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.20.6",
+    "typescript": "~5.9.2"
+  }
+}

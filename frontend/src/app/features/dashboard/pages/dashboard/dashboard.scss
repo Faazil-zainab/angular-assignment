@@ -1,0 +1,550 @@
+:host {
+  display: block;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--mat-sys-on-surface-variant);
+
+    mat-icon {
+      font-size: 1.1rem;
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+  }
+
+  &__toggle {
+    font-size: 0.8rem;
+  }
+}
+
+.loading-bar {
+  position: sticky;
+  top: var(--mc-topbar-height);
+  z-index: 5;
+  margin: -0.5rem 0 1rem;
+  border-radius: var(--mc-radius-pill);
+}
+
+.waiting {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 0.7rem 1rem;
+  border-radius: var(--mc-radius-md);
+  background: var(--mc-info-bg);
+  color: var(--mat-sys-on-surface);
+  font-size: 0.85rem;
+
+  &__text {
+    font-weight: 600;
+  }
+
+  &__detail {
+    margin-left: auto;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--mc-radius-xs);
+    background: var(--mat-sys-surface-container-high);
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 0.72rem;
+    word-break: break-all;
+  }
+}
+
+// --- Profile banner --------------------------------------------------------
+.profile-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+
+  &__identity {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+  }
+
+  &__avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    flex: 0 0 3.5rem;
+    border-radius: var(--mc-radius-lg);
+    background: var(--mat-sys-primary);
+    color: var(--mat-sys-on-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  &__eyebrow {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &__name {
+    margin: 0.15rem 0 0;
+    font: var(--mat-sys-title-large);
+    font-weight: 700;
+  }
+
+  &__email {
+    margin: 0.15rem 0 0;
+    font-size: 0.85rem;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &__skeleton-name {
+    width: 11rem;
+    height: 1.15rem;
+    margin-top: 0.35rem;
+  }
+
+  &__skeleton-email {
+    width: 13rem;
+    height: 0.8rem;
+    margin-top: 0.4rem;
+  }
+
+  &__facts dl {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem 1.75rem;
+    margin: 0;
+
+    div {
+      display: flex;
+      flex-direction: column;
+    }
+
+    dt {
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--mat-sys-on-surface-variant);
+    }
+
+    dd {
+      margin: 0.1rem 0 0;
+      font-size: 0.85rem;
+      font-weight: 600;
+      word-break: break-word;
+    }
+  }
+
+  &__muted {
+    margin: 0;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 0.85rem;
+  }
+}
+
+// --- KPI cards -------------------------------------------------------------
+.kpis {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  margin-bottom: 1.25rem;
+}
+
+.kpi {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.1rem 1.15rem;
+  overflow: hidden;
+  animation: mc-fade-up var(--mc-dur-slow) var(--mc-ease-out) both;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--mat-sys-outline-variant);
+  }
+
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--mc-radius-md);
+    background: var(--mat-sys-surface-container-high);
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &__value {
+    margin: 0.35rem 0 0;
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--mat-sys-on-surface);
+  }
+
+  &__label {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &--primary::before {
+    background: var(--mat-sys-primary);
+  }
+  &--primary .kpi__icon {
+    background: color-mix(in srgb, var(--mat-sys-primary) 14%, transparent);
+    color: var(--mat-sys-primary);
+  }
+  &--primary .kpi__value {
+    color: var(--mat-sys-primary);
+  }
+
+  &--info::before {
+    background: var(--mc-info);
+  }
+  &--info .kpi__icon {
+    background: var(--mc-info-bg);
+    color: var(--mc-info);
+  }
+  &--info .kpi__value {
+    color: var(--mc-info);
+  }
+
+  &--success::before {
+    background: var(--mc-success);
+  }
+  &--success .kpi__icon {
+    background: var(--mc-success-bg);
+    color: var(--mc-success);
+  }
+  &--success .kpi__value {
+    color: var(--mc-success);
+  }
+
+  &--error::before {
+    background: var(--mat-sys-error);
+  }
+  &--error .kpi__icon {
+    background: var(--mat-sys-error-container);
+    color: var(--mat-sys-on-error-container);
+  }
+  &--error .kpi__value {
+    color: var(--mat-sys-error);
+  }
+
+  // Subtle stagger, presentation only.
+  @for $i from 1 through 5 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{($i - 1) * 55}ms;
+    }
+  }
+}
+
+// --- Panels (risk + scope) -------------------------------------------------
+.panels {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  margin-bottom: 1.25rem;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+  }
+
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: 0 0 2.5rem;
+    border-radius: var(--mc-radius-md);
+
+    mat-icon {
+      font-size: 1.35rem;
+      width: 1.35rem;
+      height: 1.35rem;
+    }
+
+    &--primary {
+      background: color-mix(in srgb, var(--mat-sys-primary) 14%, transparent);
+      color: var(--mat-sys-primary);
+    }
+
+    &--tertiary {
+      background: var(--mc-info-bg);
+      color: var(--mc-info);
+    }
+  }
+
+  &__titles {
+    min-width: 0;
+
+    h3 {
+      margin: 0;
+      font: var(--mat-sys-title-medium);
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0.1rem 0 0;
+      font-size: 0.78rem;
+      color: var(--mat-sys-on-surface-variant);
+    }
+  }
+
+  &__body {
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+.risk__row {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr) 4.5rem;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.55rem 0;
+
+  & + & {
+    border-top: 1px dashed var(--mat-sys-outline-variant);
+  }
+}
+
+.risk__bar {
+  border-radius: var(--mc-radius-pill);
+  height: 0.5rem;
+
+  &--high {
+    --mat-progress-bar-active-indicator-color: var(--mat-sys-error);
+  }
+
+  &--medium {
+    --mat-progress-bar-active-indicator-color: #c77700;
+  }
+
+  &--low {
+    --mat-progress-bar-active-indicator-color: var(--mc-success);
+  }
+}
+
+.risk__count {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.15;
+
+  strong {
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  small {
+    font-size: 0.68rem;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.scope__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1 1 auto;
+}
+
+.scope__count {
+  margin: 0;
+  font-size: 2.75rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--mat-sys-primary);
+}
+
+.scope__label {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+}
+
+.scope__note {
+  margin: 0.75rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// --- Records table ---------------------------------------------------------
+.records {
+  &__head {
+    flex-wrap: wrap;
+  }
+
+  &__body {
+    padding: 0.5rem 0.5rem 0.75rem;
+  }
+
+  &__skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 1rem;
+  }
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.records-table {
+  min-width: 52rem;
+  background: transparent;
+
+  .mat-mdc-header-cell:first-of-type,
+  .mat-mdc-cell:first-of-type {
+    padding-left: 1.25rem;
+  }
+
+  .cell-date {
+    white-space: nowrap;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.cell-candidate {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+
+  &__avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    flex: 0 0 2.1rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--mat-sys-primary) 14%, transparent);
+    color: var(--mat-sys-primary);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+    min-width: 0;
+  }
+}
+
+.cell-strong {
+  display: block;
+  font-weight: 600;
+}
+
+.cell-muted {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// --- Skeletons -------------------------------------------------------------
+.skeleton--kpi-label {
+  width: 55%;
+  height: 0.75rem;
+}
+
+.skeleton--kpi-value {
+  width: 3rem;
+  height: 1.9rem;
+  margin-top: 0.9rem;
+}
+
+.skeleton--fact {
+  width: 6rem;
+  height: 1.6rem;
+}
+
+.skeleton--risk-label {
+  height: 1.4rem;
+}
+
+.skeleton--risk-bar {
+  height: 0.6rem;
+}
+
+.skeleton--scope {
+  height: 5rem;
+}
+
+.skeleton--row {
+  height: 2.6rem;
+}
+
+// --- Responsive ------------------------------------------------------------
+@media (max-width: 64rem) {
+  .panels {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .profile-banner__facts dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 40rem) {
+  .waiting__detail {
+    display: none;
+  }
+
+  .risk__row {
+    grid-template-columns: 5rem minmax(0, 1fr);
+  }
+
+  .risk__count {
+    grid-column: 2;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.4rem;
+    justify-content: flex-end;
+  }
+
+  .profile-banner__facts dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

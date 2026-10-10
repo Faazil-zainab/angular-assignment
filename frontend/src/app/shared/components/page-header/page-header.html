@@ -1,0 +1,19 @@
+<header class="page-header">
+  <span class="page-header__mark">
+    <mat-icon aria-hidden="true">{{ icon() }}</mat-icon>
+  </span>
+
+  <div class="page-header__text">
+    @if (eyebrow()) {
+      <span class="page-header__eyebrow">{{ eyebrow() }}</span>
+    }
+    <h1 class="page-header__heading">{{ heading() }}</h1>
+    @if (subtitle()) {
+      <p class="page-header__subtitle">{{ subtitle() }}</p>
+    }
+  </div>
+
+  <div class="page-header__actions">
+    <ng-content />
+  </div>
+</header>

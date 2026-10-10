@@ -1,0 +1,45 @@
+# --- Dependencies -----------------------------------------------------------
+node_modules/
+
+# --- Build output -----------------------------------------------------------
+dist/
+build/
+.editorconfig-*
+*.tsbuildinfo
+.angular/
+
+# --- Environments / secrets -------------------------------------------------
+# `.env.example` and the `.env.test` fixture ARE committed; real .env files are not.
+.env
+.env.*
+!.env.example
+!.env.test
+*.pem
+
+# --- Runtime data written by the local JSON store ---------------------------
+backend/data/*.json
+backend/data/*.tmp
+backend/data/.test/
+!backend/data/.gitkeep
+
+# --- Logs -------------------------------------------------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# --- Tests / coverage -------------------------------------------------------
+coverage/
+.nyc_output/
+
+# --- Editors & OS -----------------------------------------------------------
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Misc -------------------------------------------------------------------
+.cache/
+tmp/
+temp/

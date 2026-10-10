@@ -1,0 +1,26 @@
+node_modules/
+dist/
+build/
+coverage/
+
+# Local secrets - .env.example is committed instead, and .env.test is a
+# committed test fixture that contains no real secrets.
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Runtime data written by the local JSON store. The generated documents are
+# intentionally not versioned: they are created by `npm run seed` / first boot.
+# `.gitkeep` keeps the directory itself.
+data/*.json
+data/*.tmp
+data/.test/
+!data/.gitkeep
+
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json

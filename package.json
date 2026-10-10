@@ -1,0 +1,27 @@
+{
+  "name": "mploychek",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MPloyChek - Digital Background Verification | User Management SPA (Angular + Node.js/TypeScript)",
+  "license": "UNLICENSED",
+  "scripts": {
+    "postinstall": "npm --prefix backend install && npm --prefix frontend install",
+    "dev": "concurrently -n api,spa -c blue,magenta \"npm:dev:api\" \"npm:dev:spa\"",
+    "dev:api": "npm --prefix backend run dev",
+    "dev:spa": "npm --prefix frontend run start",
+    "build": "npm run build:api && npm run build:spa",
+    "build:api": "npm --prefix backend run build",
+    "build:spa": "npm --prefix frontend run build",
+    "test": "npm run test:api && npm run test:spa",
+    "test:api": "npm --prefix backend test",
+    "test:spa": "npm --prefix frontend run test:ci",
+    "typecheck": "npm --prefix backend run typecheck && npm --prefix frontend run typecheck",
+    "clean": "npm --prefix backend run clean && rimraf frontend/dist"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  }
+}

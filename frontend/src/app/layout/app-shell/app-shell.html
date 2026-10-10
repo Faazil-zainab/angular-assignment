@@ -1,0 +1,155 @@
+<div class="shell">
+  <mat-sidenav-container class="shell__viewport" [hasBackdrop]="isCompact()">
+    <mat-sidenav
+      class="sidebar"
+      [mode]="isCompact() ? 'over' : 'side'"
+      [opened]="isCompact() ? drawerOpen() : true"
+      [disableClose]="!isCompact()"
+      (closedStart)="drawerOpen.set(false)"
+    >
+      <a class="brand" [routerLink]="links.dashboard" (click)="closeNavigation()" aria-label="MPloyChek home">
+        <span class="brand__mark" aria-hidden="true">
+          <mat-icon>verified_user</mat-icon>
+        </span>
+        <span class="brand__text">
+          <strong>{{ info.appName }}</strong>
+          <small>Background verification</small>
+        </span>
+      </a>
+
+      <nav class="sidebar__nav" aria-label="Primary navigation">
+        @for (section of navigation(); track section.title) {
+          <p class="sidebar__section">{{ section.title }}</p>
+          @for (item of section.items; track item.link) {
+            <a
+              class="nav-item"
+              [routerLink]="item.link"
+              routerLinkActive="nav-item--active"
+              [routerLinkActiveOptions]="{ exact: item.link === links.dashboard }"
+              (click)="closeNavigation()"
+            >
+              <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        }
+      </nav>
+
+      <div class="sidebar__spacer"></div>
+
+      <div class="sidebar__status" [class]="'sidebar__status--' + apiStatus()">
+        <div class="sidebar__status-head">
+          @if (apiStatus() === 'checking') {
+            <mat-spinner [diameter]="14" />
+          } @else {
+            <mat-icon aria-hidden="true">{{ statusIcon() }}</mat-icon>
+          }
+          <span>{{ statusLabel() }}</span>
+          <button
+            type="button"
+            class="sidebar__status-refresh"
+            (click)="checkApi()"
+            matTooltip="Re-check the API"
+            aria-label="Re-check the API connection"
+          >
+            <mat-icon aria-hidden="true">refresh</mat-icon>
+          </button>
+        </div>
+        <p class="sidebar__status-detail" [matTooltip]="statusDetail()">{{ statusDetail() }}</p>
+      </div>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="main">
+      <header class="topbar">
+        @if (isCompact()) {
+          <button
+            type="button"
+            class="topbar__icon-button"
+            (click)="toggleNavigation()"
+            aria-label="Open navigation menu"
+          >
+            <mat-icon aria-hidden="true">menu</mat-icon>
+          </button>
+        }
+
+        <div class="topbar__context">
+          <span class="topbar__eyebrow">Console</span>
+          <span class="topbar__title">{{ currentArea() }}</span>
+        </div>
+
+        <span class="topbar__spacer"></span>
+
+        <button
+          type="button"
+          class="status-pill"
+          [class]="'status-pill--' + apiStatus()"
+          [matTooltip]="statusDetail()"
+          matTooltipPosition="below"
+          (click)="checkApi()"
+        >
+          @if (apiStatus() === 'checking') {
+            <mat-spinner [diameter]="14" />
+          } @else {
+            <mat-icon aria-hidden="true">{{ statusIcon() }}</mat-icon>
+          }
+          <span>{{ statusLabel() }}</span>
+        </button>
+
+        @if (isAuthenticated()) {
+          @if (currentUser(); as user) {
+            <button
+              type="button"
+              class="account"
+              [matMenuTriggerFor]="accountMenu"
+              aria-haspopup="true"
+              aria-label="Open account menu"
+            >
+              <span class="account__avatar" aria-hidden="true">{{ initials() }}</span>
+              <span class="account__meta">
+                <span class="account__name">{{ user.name }}</span>
+                <span class="account__role">{{ roleLabel() }}</span>
+              </span>
+              <mat-icon class="account__caret" aria-hidden="true">expand_more</mat-icon>
+            </button>
+
+            <mat-menu #accountMenu="matMenu" xPosition="before" class="account-menu">
+              <div class="account-menu__header">
+                <span class="account__avatar account__avatar--lg" aria-hidden="true">{{ initials() }}</span>
+                <span class="account-menu__identity">
+                  <strong>{{ user.name }}</strong>
+                  <small>{{ user.email }}</small>
+                </span>
+              </div>
+              <mat-divider />
+              <div class="account-menu__meta">
+                <span><mat-icon aria-hidden="true">badge</mat-icon>{{ user.userId }}</span>
+                <span><mat-icon aria-hidden="true">workspace_premium</mat-icon>{{ roleLabel() }}</span>
+                <span><mat-icon aria-hidden="true">apartment</mat-icon>{{ user.department }}</span>
+              </div>
+              <mat-divider />
+              <button mat-menu-item type="button" (click)="logout()">
+                <mat-icon aria-hidden="true">logout</mat-icon>
+                <span>Sign out</span>
+              </button>
+            </mat-menu>
+          }
+        } @else {
+          <a mat-flat-button color="primary" [routerLink]="links.login">
+            <mat-icon aria-hidden="true">login</mat-icon>
+            <span>Sign in</span>
+          </a>
+        }
+      </header>
+
+      <main class="main__body">
+        <router-outlet />
+      </main>
+
+      <footer class="footer">
+        <span>{{ info.appName }} v{{ info.appVersion }} - digital background verification</span>
+        <span class="footer__spacer"></span>
+        <code>{{ info.apiBaseUrl }}</code>
+      </footer>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

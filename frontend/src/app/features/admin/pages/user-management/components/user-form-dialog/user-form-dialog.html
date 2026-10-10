@@ -1,0 +1,158 @@
+<h2 mat-dialog-title class="dialog-title">
+  <span class="dialog-title__icon"><mat-icon aria-hidden="true">{{ isCreateMode() ? 'person_add' : 'edit' }}</mat-icon></span>
+  <span>{{ isCreateMode() ? 'Add User' : 'Edit User' }}</span>
+</h2>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="dialog-content">
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>User ID</mat-label>
+        <input matInput formControlName="userId" placeholder="e.g., john.doe" autocomplete="username" />
+        <mat-icon matPrefix>badge</mat-icon>
+        @if (form.get('userId')?.hasError('required') && form.get('userId')?.touched) {
+          <mat-error>User ID is required.</mat-error>
+        } @else if (form.get('userId')?.hasError('minlength')) {
+          <mat-error>User ID must be at least 3 characters.</mat-error>
+        } @else if (form.get('userId')?.hasError('maxlength')) {
+          <mat-error>User ID must be at most 32 characters.</mat-error>
+        } @else if (form.get('userId')?.hasError('pattern')) {
+          <mat-error>User ID may only contain letters, digits, dot, underscore or hyphen.</mat-error>
+        } @else if (form.get('userId')?.hasError('notUnique')) {
+          <mat-error>User ID already exists. Please choose a different one.</mat-error>
+        }
+        @if (!isCreateMode()) {
+          <mat-hint>User ID cannot be changed after creation.</mat-hint>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" placeholder="Full name" autocomplete="name" />
+        <mat-icon matPrefix>person</mat-icon>
+        @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+          <mat-error>Name is required.</mat-error>
+        } @else if (form.get('name')?.hasError('minlength')) {
+          <mat-error>Name must be at least 2 characters.</mat-error>
+        } @else if (form.get('name')?.hasError('maxlength')) {
+          <mat-error>Name must be at most 80 characters.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email" placeholder="john.doe@company.com" autocomplete="email" />
+        <mat-icon matPrefix>email</mat-icon>
+        @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+          <mat-error>Email is required.</mat-error>
+        } @else if (form.get('email')?.hasError('email')) {
+          <mat-error>Please enter a valid email address.</mat-error>
+        } @else if (form.get('email')?.hasError('maxlength')) {
+          <mat-error>Email must be at most 120 characters.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    @if (isCreateMode()) {
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            formControlName="password"
+            [type]="passwordVisible() ? 'text' : 'password'"
+            placeholder="Min 8 characters"
+            autocomplete="new-password"
+          />
+          <mat-icon matPrefix>lock</mat-icon>
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="passwordVisible() ? 'Hide password' : 'Show password'"
+            [attr.aria-pressed]="passwordVisible()"
+          >
+            <mat-icon aria-hidden="true">{{ passwordVisible() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
+            <mat-error>Password is required.</mat-error>
+          } @else if (form.get('password')?.hasError('minlength')) {
+            <mat-error>Password must be at least 8 characters.</mat-error>
+          } @else if (form.get('password')?.hasError('maxlength')) {
+            <mat-error>Password must be at most 128 characters.</mat-error>
+          }
+          <mat-hint>Minimum 8 characters.</mat-hint>
+        </mat-form-field>
+      </div>
+    }
+
+    <div class="form-row two-col">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Role</mat-label>
+        <mat-select formControlName="role">
+          @for (role of roles; track role) {
+            <mat-option [value]="role">{{ role }}</mat-option>
+          }
+        </mat-select>
+        <mat-icon matPrefix>admin_panel_settings</mat-icon>
+        @if (form.get('role')?.hasError('required') && form.get('role')?.touched) {
+          <mat-error>Role is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Department</mat-label>
+        <mat-select formControlName="department">
+          @for (dept of departments; track dept) {
+            <mat-option [value]="dept">{{ dept }}</mat-option>
+          }
+        </mat-select>
+        <mat-icon matPrefix>business</mat-icon>
+        @if (form.get('department')?.hasError('required') && form.get('department')?.touched) {
+          <mat-error>Department is required.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    @if (!isCreateMode()) {
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            @for (status of statuses; track status) {
+              <mat-option [value]="status">{{ status }}</mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>toggle_on</mat-icon>
+        </mat-form-field>
+      </div>
+    }
+
+    @if (submitError()) {
+      <div class="submit-error" role="alert">
+        <mat-icon>error</mat-icon>
+        <span>{{ submitError() }}</span>
+      </div>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button type="button" (click)="onCancel()" [disabled]="isSubmitting()">Cancel</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting() || form.invalid">
+      <ng-container>
+        @if (isSubmitting()) {
+          <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+          <span>Saving...</span>
+        } @else {
+          <mat-icon>{{ isCreateMode() ? 'person_add' : 'save' }}</mat-icon>
+          <span>{{ isCreateMode() ? 'Create' : 'Save Changes' }}</span>
+        }
+      </ng-container>
+    </button>
+  </mat-dialog-actions>
+</form>

@@ -1,0 +1,20 @@
+<section class="not-found">
+  <mat-card appearance="outlined" class="not-found__card">
+    <mat-icon class="not-found__icon" aria-hidden="true">travel_explore</mat-icon>
+    <h1>404 - page not found</h1>
+    <p>
+      That route does not exist in the MPloyChek SPA. The routes available in Phase 1 are
+      the sign-in screen, the dashboard and the admin area.
+    </p>
+    <div class="not-found__actions">
+      <a mat-flat-button color="primary" [routerLink]="links.dashboard">
+        <mat-icon>dashboard</mat-icon>
+        Go to dashboard
+      </a>
+      <a mat-stroked-button [routerLink]="links.login">
+        <mat-icon>login</mat-icon>
+        Sign in
+      </a>
+    </div>
+  </mat-card>
+</section>

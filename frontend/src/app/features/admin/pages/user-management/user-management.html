@@ -1,0 +1,220 @@
+<app-page-header
+  eyebrow="Administration"
+  heading="User management"
+  subtitle="Manage MPloyChek users, roles and account status across the platform."
+  icon="group"
+>
+  <button mat-flat-button color="primary" type="button" (click)="openAddUserDialog()" [disabled]="isLoading()">
+    <mat-icon aria-hidden="true">person_add</mat-icon>
+    <span>Add user</span>
+  </button>
+</app-page-header>
+
+<section class="filters surface-card animate-in" aria-label="Search and filter users">
+  <div class="filters__search">
+    <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+      <mat-label>Search users</mat-label>
+      <mat-icon matPrefix aria-hidden="true">search</mat-icon>
+      <input matInput [formControl]="searchControl" placeholder="Name, email or user ID" />
+      @if (searchControl.value) {
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="clearSearch()"
+          aria-label="Clear search"
+        >
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+  </div>
+
+  <div class="filters__controls">
+    <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
+      <mat-label>Role</mat-label>
+      <mat-icon matPrefix aria-hidden="true">admin_panel_settings</mat-icon>
+      <mat-select [value]="roleFilter()" (selectionChange)="roleFilter.set($event.value); loadUsers()">
+        <mat-option value="">All roles</mat-option>
+        @for (role of roles; track role) {
+          <mat-option [value]="role">{{ role }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
+      <mat-label>Status</mat-label>
+      <mat-icon matPrefix aria-hidden="true">toggle_on</mat-icon>
+      <mat-select [value]="statusFilter()" (selectionChange)="statusFilter.set($event.value); loadUsers()">
+        <mat-option value="">All statuses</mat-option>
+        @for (status of statuses; track status) {
+          <mat-option [value]="status">{{ status }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
+      <mat-label>Department</mat-label>
+      <mat-icon matPrefix aria-hidden="true">apartment</mat-icon>
+      <mat-select
+        [value]="departmentFilter()"
+        (selectionChange)="departmentFilter.set($event.value); loadUsers()"
+      >
+        <mat-option value="">All departments</mat-option>
+        @for (dept of departments; track dept) {
+          <mat-option [value]="dept">{{ dept }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (hasFilters()) {
+      <button mat-stroked-button type="button" class="filters__clear" (click)="clearFilters()">
+        <mat-icon aria-hidden="true">filter_alt_off</mat-icon>
+        <span>Clear</span>
+      </button>
+    }
+  </div>
+</section>
+
+<section class="surface-card table-card">
+  @if (isLoading() && users().length > 0) {
+    <mat-progress-bar mode="indeterminate" />
+  }
+
+  <div class="results-meta">
+    <span class="results-meta__count">
+      <mat-icon aria-hidden="true">people</mat-icon>
+      {{ totalRecords() }} {{ totalRecords() === 1 ? 'user' : 'users' }}
+    </span>
+    @if (searchControl.value) {
+      <span class="results-meta__filter">Search: “{{ searchControl.value }}”</span>
+    }
+  </div>
+
+  @if (isLoading() && users().length === 0) {
+    <div class="table-skeleton" role="status" aria-live="polite">
+      <span class="visually-hidden">Loading users…</span>
+      @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+        <div class="skeleton skeleton--row"></div>
+      }
+    </div>
+  } @else {
+    <div class="table-container">
+      <table mat-table [dataSource]="users()" class="mc-table user-table">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef scope="col">User</th>
+          <td mat-cell *matCellDef="let user">
+            <div class="cell-user">
+              <span class="cell-user__avatar" aria-hidden="true">{{ initials(user.name) }}</span>
+              <span class="cell-user__text">
+                <span class="cell-strong">{{ user.name }}</span>
+                <span class="cell-muted">{{ user.email }}</span>
+              </span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="userId">
+          <th mat-header-cell *matHeaderCellDef scope="col">User ID</th>
+          <td mat-cell *matCellDef="let user">
+            <code class="user-id">{{ user.userId }}</code>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="role">
+          <th mat-header-cell *matHeaderCellDef scope="col">Role</th>
+          <td mat-cell *matCellDef="let user">
+            <span [class]="roleBadgeClass(user.role)">{{ user.role }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="department">
+          <th mat-header-cell *matHeaderCellDef scope="col">Department</th>
+          <td mat-cell *matCellDef="let user">{{ user.department }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef scope="col">Status</th>
+          <td mat-cell *matCellDef="let user">
+            <span [class]="statusBadgeClass(user.status)">
+              <mat-icon aria-hidden="true">{{ statusIcon(user.status) }}</mat-icon>
+              {{ user.status }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef scope="col">Created</th>
+          <td mat-cell *matCellDef="let user" class="cell-date">{{ formatDate(user.createdAt) }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef scope="col" class="cell-actions-head">Actions</th>
+          <td mat-cell *matCellDef="let user" class="cell-actions">
+            <button
+              mat-icon-button
+              [matMenuTriggerFor]="userMenu"
+              [attr.aria-label]="'More actions for ' + user.name"
+              [disabled]="isLoading()"
+            >
+              <mat-icon aria-hidden="true">more_vert</mat-icon>
+            </button>
+
+            <mat-menu #userMenu="matMenu" xPosition="before">
+              <button mat-menu-item type="button" (click)="openEditUserDialog(user)" [disabled]="isLoading()">
+                <mat-icon aria-hidden="true">edit</mat-icon>
+                <span>Edit</span>
+              </button>
+              <button mat-menu-item type="button" (click)="confirmStatusChange(user)" [disabled]="isLoading()">
+                <mat-icon aria-hidden="true">{{ user.status === 'ACTIVE' ? 'block' : 'check_circle' }}</mat-icon>
+                <span>{{ user.status === 'ACTIVE' ? 'Deactivate' : 'Activate' }}</span>
+              </button>
+              <mat-divider />
+              <button
+                mat-menu-item
+                type="button"
+                (click)="confirmDeleteUser(user)"
+                [disabled]="isLoading()"
+                class="delete-action"
+              >
+                <mat-icon aria-hidden="true">delete</mat-icon>
+                <span>Delete</span>
+              </button>
+            </mat-menu>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+  }
+
+  @if (users().length === 0 && !isLoading()) {
+    <div class="mc-state mc-state--centered empty-state">
+      <span class="mc-state__icon"><mat-icon aria-hidden="true">person_search</mat-icon></span>
+      <div class="mc-state__body">
+        <h3>No users found</h3>
+        <p>
+          {{ searchControl.value || hasFilters() ? 'Try adjusting your search or filters.' : 'Get started by adding a new user.' }}
+        </p>
+      </div>
+      <button mat-flat-button color="primary" type="button" (click)="openAddUserDialog()" [disabled]="isLoading()">
+        <mat-icon aria-hidden="true">person_add</mat-icon>
+        <span>Add user</span>
+      </button>
+    </div>
+  }
+
+  @if (totalRecords() > 0) {
+    <mat-paginator
+      [length]="totalRecords()"
+      [pageSize]="pageSize()"
+      [pageIndex]="currentPage()"
+      [pageSizeOptions]="[5, 10, 25, 50]"
+      [showFirstLastButtons]="true"
+      (page)="onPageChange($event)"
+      aria-label="User pagination"
+    />
+  }
+</section>

@@ -1,0 +1,271 @@
+<app-page-header
+  eyebrow="Workspace"
+  heading="Dashboard"
+  subtitle="Your profile, verification statistics and records, loaded from the MPloyChek API."
+  icon="space_dashboard"
+>
+  <div class="controls">
+    <label class="controls__label" for="delay-group">
+      <mat-icon aria-hidden="true">timer</mat-icon>
+      API delay
+    </label>
+    <mat-button-toggle-group
+      id="delay-group"
+      class="controls__toggle"
+      [value]="selectedDelay()"
+      (change)="onDelayChange($event.value)"
+      aria-label="Simulated API delay"
+    >
+      @for (option of delayOptions; track option.value) {
+        <mat-button-toggle [value]="option.value">{{ option.label }}</mat-button-toggle>
+      }
+    </mat-button-toggle-group>
+    <button mat-stroked-button type="button" (click)="reload()" [disabled]="isLoading()">
+      <mat-icon aria-hidden="true">refresh</mat-icon>
+      Refresh
+    </button>
+  </div>
+</app-page-header>
+
+@if (isLoading()) {
+  <mat-progress-bar mode="indeterminate" class="loading-bar" />
+  <div class="waiting" role="status" aria-live="polite">
+    <mat-spinner [diameter]="18" />
+    <span class="waiting__text">Waiting for the API…</span>
+    <code class="waiting__detail">GET /api/records?delay={{ selectedDelay() }}</code>
+  </div>
+}
+
+<!-- Profile banner -->
+<section class="profile-banner surface-card animate-in" aria-label="Signed-in user">
+  <div class="profile-banner__identity">
+    <span class="profile-banner__avatar" aria-hidden="true">{{ profileInitials() }}</span>
+    <div class="profile-banner__meta">
+      <span class="profile-banner__eyebrow">Signed in as</span>
+      @if (isLoading() && !profile()) {
+        <div class="skeleton profile-banner__skeleton-name"></div>
+        <div class="skeleton profile-banner__skeleton-email"></div>
+      } @else {
+        <h2 class="profile-banner__name">{{ profileName() }}</h2>
+        <p class="profile-banner__email">{{ profileEmail() }}</p>
+      }
+    </div>
+  </div>
+
+  <div class="profile-banner__facts">
+    @if (isLoading() && !profile()) {
+      @for (item of [1, 2, 3, 4]; track item) {
+        <div class="skeleton skeleton--fact"></div>
+      }
+    } @else if (profile(); as user) {
+      <dl>
+        <div><dt>User ID</dt><dd>{{ user.userId }}</dd></div>
+        <div><dt>Role</dt><dd>{{ user.role }}</dd></div>
+        <div><dt>Department</dt><dd>{{ user.department }}</dd></div>
+        <div><dt>Status</dt><dd>{{ user.status }}</dd></div>
+      </dl>
+    } @else {
+      <p class="profile-banner__muted">Sign in again to load your profile.</p>
+    }
+  </div>
+</section>
+
+<!-- KPI cards -->
+<section class="kpis" aria-label="Verification statistics">
+  @if (isLoading()) {
+    @for (item of [1, 2, 3, 4, 5]; track item) {
+      <div class="kpi surface-card">
+        <div class="skeleton skeleton--kpi-label"></div>
+        <div class="skeleton skeleton--kpi-value"></div>
+      </div>
+    }
+  } @else {
+    @for (stat of stats(); track stat.label) {
+      <div class="kpi surface-card" [class]="'kpi--' + stat.tone">
+        <div class="kpi__icon" aria-hidden="true">
+          <mat-icon>{{ stat.icon }}</mat-icon>
+        </div>
+        <p class="kpi__value">{{ stat.value }}</p>
+        <p class="kpi__label">{{ stat.label }}</p>
+      </div>
+    }
+  }
+</section>
+
+<div class="panels">
+  <!-- Risk indicators -->
+  <section class="surface-card panel risk" aria-labelledby="risk-heading">
+    <header class="panel__head">
+      <span class="panel__icon panel__icon--tertiary" aria-hidden="true">
+        <mat-icon>shield</mat-icon>
+      </span>
+      <div class="panel__titles">
+        <h3 id="risk-heading">Risk indicators</h3>
+        <p>{{ scopeLabel() }}</p>
+      </div>
+    </header>
+
+    <div class="panel__body">
+      @if (isLoading()) {
+        @for (item of [1, 2, 3]; track item) {
+          <div class="risk__row">
+            <div class="skeleton skeleton--risk-label"></div>
+            <div class="skeleton skeleton--risk-bar"></div>
+          </div>
+        }
+      } @else {
+        @for (risk of riskSummary(); track risk.level) {
+          <div class="risk__row">
+            <span [class]="riskClass(risk.level)">{{ risk.label }}</span>
+            <mat-progress-bar
+              class="risk__bar"
+              [value]="risk.percent"
+              [class]="'risk__bar--' + risk.level.toLowerCase()"
+            />
+            <span class="risk__count">
+              <strong>{{ risk.count }}</strong>
+              <small>{{ risk.percent }}%</small>
+            </span>
+          </div>
+        }
+      }
+    </div>
+  </section>
+
+  <!-- Scope summary -->
+  <section class="surface-card panel scope" aria-labelledby="scope-heading">
+    <header class="panel__head">
+      <span class="panel__icon panel__icon--primary" aria-hidden="true">
+        <mat-icon>fact_check</mat-icon>
+      </span>
+      <div class="panel__titles">
+        <h3 id="scope-heading">Verification scope</h3>
+        <p>{{ scopeLabel() }}</p>
+      </div>
+    </header>
+
+    <div class="panel__body scope__body">
+      @if (isLoading()) {
+        <div class="skeleton skeleton--scope"></div>
+      } @else {
+        <p class="scope__count">{{ totalRecords() }}</p>
+        <p class="scope__label">total records tracked</p>
+        <p class="scope__note">
+          @if (isAdmin()) {
+            Every verification request across the platform is visible to administrators.
+          } @else {
+            Only verification requests assigned to you are shown.
+          }
+        </p>
+      }
+    </div>
+  </section>
+</div>
+
+<!-- Records -->
+<section class="surface-card records" aria-labelledby="records-heading">
+  <header class="panel__head records__head">
+    <span class="panel__icon panel__icon--primary" aria-hidden="true">
+      <mat-icon>table_view</mat-icon>
+    </span>
+    <div class="panel__titles">
+      <h3 id="records-heading">Verification records</h3>
+      <p>
+        {{ scopeLabel() }}
+        @if (!isLoading() && !hasError()) {
+          · showing {{ records().length }} of {{ totalRecords() }}
+        }
+      </p>
+    </div>
+  </header>
+
+  <div class="records__body">
+    @if (isLoading()) {
+      <div class="records__skeleton">
+        @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+          <div class="skeleton skeleton--row"></div>
+        }
+      </div>
+    } @else if (hasError()) {
+      <div class="mc-state mc-state--error" role="alert">
+        <span class="mc-state__icon"><mat-icon aria-hidden="true">cloud_off</mat-icon></span>
+        <div class="mc-state__body">
+          <h3>Unable to load records</h3>
+          <p>{{ errorMessage() }}</p>
+        </div>
+        <button mat-flat-button color="primary" type="button" (click)="reload()">
+          <mat-icon aria-hidden="true">refresh</mat-icon>
+          Retry
+        </button>
+      </div>
+    } @else if (isEmpty()) {
+      <div class="mc-state mc-state--centered">
+        <span class="mc-state__icon"><mat-icon aria-hidden="true">inbox</mat-icon></span>
+        <div class="mc-state__body">
+          <h3>No records yet</h3>
+          <p>When a background verification is assigned to you it will appear here.</p>
+        </div>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table mat-table [dataSource]="records()" class="mc-table records-table">
+          <ng-container matColumnDef="candidate">
+            <th mat-header-cell *matHeaderCellDef scope="col">Candidate</th>
+            <td mat-cell *matCellDef="let record">
+              <div class="cell-candidate">
+                <span class="cell-candidate__avatar" aria-hidden="true">
+                  {{ record.candidateName.charAt(0) }}
+                </span>
+                <span class="cell-candidate__text">
+                  <span class="cell-strong">{{ record.candidateName }}</span>
+                  <span class="cell-muted">{{ record.id }} · {{ record.location }}</span>
+                </span>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef scope="col">Verification</th>
+            <td mat-cell *matCellDef="let record">{{ record.verificationType }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="company">
+            <th mat-header-cell *matHeaderCellDef scope="col">Company</th>
+            <td mat-cell *matCellDef="let record">{{ record.company }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef scope="col">Status</th>
+            <td mat-cell *matCellDef="let record">
+              <span [class]="statusClass(record.status)">{{ statusLabel(record.status) }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="risk">
+            <th mat-header-cell *matHeaderCellDef scope="col">Risk</th>
+            <td mat-cell *matCellDef="let record">
+              <span [class]="riskClass(record.riskLevel)">{{ riskLabel(record.riskLevel) }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="submitted">
+            <th mat-header-cell *matHeaderCellDef scope="col">Submitted</th>
+            <td mat-cell *matCellDef="let record" class="cell-date">
+              {{ record.submittedDate | date: 'd MMM y' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="completed">
+            <th mat-header-cell *matHeaderCellDef scope="col">Completed</th>
+            <td mat-cell *matCellDef="let record" class="cell-date">
+              {{ record.completedDate ? (record.completedDate | date: 'd MMM y') : '—' }}
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="columns"></tr>
+          <tr mat-row *matRowDef="let row; columns: columns"></tr>
+        </table>
+      </div>
+    }
+  </div>
+</section>
